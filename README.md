@@ -8,3 +8,6 @@ npm install @react-navigation/material-bottom-tabs react-native-paper react-nati
 npm install @react-navigation/stack
 npx expo install react-native-gesture-handler
 npx expo install @react-native-masked-view/masked-view
+
+// wenn ihr euch die App in Web Browser anschauen wollt
+npx expo install react-native-web react-dom @expo/metro-runtime
