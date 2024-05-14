@@ -19,27 +19,28 @@ const Stack = createStackNavigator();
 
 const Home = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  /* const handlePress = () => {
+  const handlePress = () => {
     const buttons = [
       { text: "Diary", onPress: () => navigation.navigate("Diary") },
       { text: "Dream", onPress: () => navigation.navigate("Dream") },
     ];
-    AlertHome.alert(
+    Alert.alert(
       "Choose an entry type",
       "Do you want to create a diary entry or a dream entry?",
       buttons,
       { cancelable: true }
     );
   };
-  */
-  const handleTouchStart = (event) => {
+
+  /*const handleTouchStart = (event) => {
     if (modalVisible && event.nativeEvent.target === event.currentTarget) {
       setModalVisible(false);
     }
   };
+  */
 
   return (
-    <View style={styles.container} onTouchStart={handleTouchStart}>
+    <View style={styles.container} onTouchStart={handlePress}>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
