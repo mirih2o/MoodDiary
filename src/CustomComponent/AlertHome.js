@@ -8,7 +8,7 @@ const AlertHome = ({ title, message, buttons, cancelable }) => {
       <Text style={styles.alertTitle}>{title}</Text>
       <Text style={styles.alertMessage}>{message}</Text>
       {buttons.map((button, index) => (
-        <View style={styles.button}>
+        <View>
           <Button key={index} title={button.text} onPress={button.onPress} />
         </View>
       ))}
