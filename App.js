@@ -6,13 +6,15 @@ import { createMaterialBottomTabNavigator } from "@react-navigation/material-bot
 import Home from "./src/BottomTab/Home";
 import Analytic from "./src/BottomTab/Analytic";
 import Calendar from "./src/BottomTab/Calendar";
+import Dream from "./src/Stack/Dream";
+import Diary from "./src/Stack/Diary";
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
 
 function TabNavigator() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator initialRouteName="Home">
       <Tab.Screen
         name="Calendar"
         options={{
@@ -49,7 +51,8 @@ function Stacknavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="HomeScreen" component={Home} />
-      <Stack.Screen name="Calendar" component={Calendar} />
+      <Stack.Screen name="Diary" component={Diary} />
+      <Stack.Screen name="Dream" component={Dream} />
     </Stack.Navigator>
   );
 }
