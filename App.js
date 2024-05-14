@@ -5,9 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import Home from "./src/BottomTab/Home";
 import Analytic from "./src/BottomTab/Analytic";
-import Calendar from "./src/BottomTab/Calendar";
-import Dream from "./src/Stack/Dream";
-import Diary from "./src/Stack/Diary";
+import CalendarScreen from "./src/BottomTab/CalendarScreen";
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -22,7 +20,7 @@ function TabNavigator() {
             <Ionicons name="calendar" color={color} size={24} />
           ),
         }}
-        component={Calendar}
+        component={CalendarScreen}
       />
       <Tab.Screen
         name="Home"
@@ -51,8 +49,7 @@ function Stacknavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="HomeScreen" component={Home} />
-      <Stack.Screen name="Diary" component={Diary} />
-      <Stack.Screen name="Dream" component={Dream} />
+      <Stack.Screen name="Calendar" component={CalendarScreen} />
     </Stack.Navigator>
   );
 }
