@@ -51,7 +51,6 @@ function Stacknavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="HomeScreen" component={Home} />
-      <Stack.Screen name="Calendar" component={CalendarScreen} />
       <Stack.Screen name="Diary" component={Diary} />
       <Stack.Screen name="Dream" component={Dream} />
     </Stack.Navigator>

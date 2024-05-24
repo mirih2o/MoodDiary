@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-const AlertHome = ({ title, message, buttons, cancelable }) => {
+export default function AlertHome(title, message, buttons, cancelable) {
   return (
     <View style={styles.alertContainer}>
       <Text style={styles.alertTitle}>{title}</Text>
@@ -14,7 +14,7 @@ const AlertHome = ({ title, message, buttons, cancelable }) => {
       ))}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   alertContainer: {
@@ -37,5 +37,3 @@ const styles = StyleSheet.create({
   },
   */
 });
-
-export { AlertHome };

@@ -40,41 +40,10 @@ const Home = ({ navigation }) => {
   */
 
   return (
-    <View style={styles.container} onTouchStart={handlePress}>
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setModalVisible(true)}
-      >
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.addButton} onPress={handlePress}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <AlertHome
-          title="Choose an entry type"
-          message="Do you want to create a diary entry or a dream entry?"
-          buttons={[
-            {
-              text: "Diary",
-              onPress: () => {
-                setModalVisible(false);
-                navigation.navigate("Diary");
-              },
-            },
-            {
-              text: "Dream",
-              onPress: () => {
-                setModalVisible(false);
-                navigation.navigate("Dream");
-              },
-            },
-          ]}
-          cancelable={true}
-        />
-      </Modal>
     </View>
   );
 };
@@ -83,7 +52,7 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#9d99bc",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -92,7 +61,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 160,
     left: 160,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#dbaaee",
     borderRadius: 50,
     height: 60,
     alignItems: "center",
