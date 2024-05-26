@@ -10,11 +10,12 @@ import {
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Calendar } from "react-native-calendars";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Ionicons, FontAwesome, Entypo } from "@expo/vector-icons";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import * as ImagePicker from "expo-image-picker";
 
 const Diary = () => {
   const [title, setTitle] = useState("");
@@ -23,6 +24,9 @@ const Diary = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+
+  const [selectedTextSize, setSelectedTextSize] = useState(18);
+  const [selectedTextStyle, setSelectedTextStyle] = useState("normal");
   // const [selectedDate, setSelectedDate] = useState(new Date());
   //const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -65,6 +69,39 @@ const Diary = () => {
     return `${day}. ${months[parseInt(month) - 1]} ${year}`;
   };
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      console.log(result.uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      console.log(result.uri);
+    }
+  };
+
+  const toggleTextStyle = (style) => {
+    setSelectedTextStyle(style);
+  };
+
+  const changeTextSize = (size) => {
+    setSelectedTextSize(size);
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={toggleModal} style={styles.date}>
@@ -78,51 +115,55 @@ const Diary = () => {
         />
       </TouchableOpacity>
 
-      <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={toggleModal}>
-          {/* <DateTimePickerModal
+      <Modal
+        visible={isModalVisible}
+        animationType="fade"
+        transparent={true}
+        style={styles.modal}
+      >
+        {/* <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="date"
             onConfirm={handleConfirm}
             onCancel={hideDatePicker}
           />
           */}
-          <View>
-            <Calendar
-              onDayPress={handleDayPress}
-              markedDates={{
-                [selectedDate]: {
-                  selected: true,
-                  marked: true,
-                  selectedColor: "#C4C1D6",
-                },
-              }}
-              theme={{
-                textSectionTitleColor: "#C4C1D6",
-                selectedDayBackgroundColor: "#C4C1D6",
-                selectedDayTextColor: "black",
-                todayTextColor: "#dbaaee",
-                dayTextColor: "#2d4150",
-                textDisabledColor: "#d9e1e8",
-                dotColor: "#dbaaee",
-                selectedDotColor: "#C4C1D6",
-                arrowColor: "#C4C1D6",
-                monthTextColor: "black",
-                indicatorColor: "#dbaaee",
-                textDayFontFamily: "monospace",
-                textMonthFontFamily: "monospace",
-                textDayHeaderFontFamily: "monospace",
-                textDayFontWeight: "300",
-                textMonthFontWeight: "bold",
-                textDayHeaderFontWeight: "300",
-                textDayFontSize: 16,
-                textMonthFontSize: 16,
-                textDayHeaderFontSize: 16,
-              }}
-            />
-          </View>
-        </TouchableOpacity>
+        <View>
+          <Calendar
+            onDayPress={handleDayPress}
+            markedDates={{
+              [selectedDate]: {
+                selected: true,
+                marked: true,
+                selectedColor: "#C4C1D6",
+              },
+            }}
+            theme={{
+              textSectionTitleColor: "#C4C1D6",
+              selectedDayBackgroundColor: "#C4C1D6",
+              selectedDayTextColor: "black",
+              todayTextColor: "#dbaaee",
+              dayTextColor: "#2d4150",
+              textDisabledColor: "#d9e1e8",
+              dotColor: "#dbaaee",
+              selectedDotColor: "#C4C1D6",
+              arrowColor: "#C4C1D6",
+              monthTextColor: "black",
+              indicatorColor: "#dbaaee",
+              textDayFontFamily: "monospace",
+              textMonthFontFamily: "monospace",
+              textDayHeaderFontFamily: "monospace",
+              textDayFontWeight: "300",
+              textMonthFontWeight: "bold",
+              textDayHeaderFontWeight: "300",
+              textDayFontSize: 16,
+              textMonthFontSize: 16,
+              textDayHeaderFontSize: 16,
+            }}
+          />
+        </View>
       </Modal>
+
       <View style={styles.line} />
       <TextInput
         placeholder="Titel"
@@ -134,7 +175,6 @@ const Diary = () => {
         style={{
           height: hp(55),
           margin: 20,
-          alignItems: "center",
         }}
       >
         <ScrollView>
@@ -142,11 +182,64 @@ const Diary = () => {
             placeholder="Write your dream here..."
             value={text}
             onChangeText={setText}
-            style={styles.textInput}
+            style={[
+              styles.textInput,
+              { fontSize: selectedTextSize, fontStyle: selectedTextStyle },
+            ]}
             multiline={true}
             textAlignVertical="top"
           />
         </ScrollView>
+      </View>
+
+      <View style={styles.toolbar}>
+        <TouchableOpacity
+          onPress={() => changeTextSize(selectedTextSize === 18 ? 22 : 18)}
+        >
+          <Text style={styles.toolbarIcon}>A</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            toggleTextStyle(
+              selectedTextStyle === "normal" ? "italic" : "normal"
+            )
+          }
+        >
+          <FontAwesome
+            name="italic"
+            size={24}
+            color="black"
+            style={styles.toolbarIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            toggleTextStyle(selectedTextStyle === "normal" ? "bold" : "normal")
+          }
+        >
+          <FontAwesome
+            name="bold"
+            size={24}
+            color="black"
+            style={styles.toolbarIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={pickImage}>
+          <Entypo
+            name="image"
+            size={24}
+            color="black"
+            style={styles.toolbarIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={takePhoto}>
+          <Ionicons
+            name="camera"
+            size={24}
+            color="black"
+            style={styles.toolbarIcon}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -183,6 +276,22 @@ const styles = StyleSheet.create({
     borderColor: "grey",
     borderRadius: 5,
     padding: 10,
+  },
+
+  modal: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  toolbar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#C4C1D6",
+    padding: 10,
+  },
+  toolbarIcon: {
+    marginHorizontal: 10,
   },
 });
 
