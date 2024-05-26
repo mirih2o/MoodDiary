@@ -3,11 +3,11 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import Home from "./src/BottomTab/Home";
-import Analytic from "./src/BottomTab/Analytic";
-import CalendarScreen from "./src/BottomTab/CalendarScreen";
-import Diary from "./src/Stack/Diary";
-import Dream from "./src/Stack/Dream";
+import Home from "./src/screens/Home";
+import Analytic from "./src/screens/Analytic";
+import CalendarScreen from "./src/screens/CalendarScreen";
+import Diary from "./src/screens/Diary";
+import Dream from "./src/screens/Dream";
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
