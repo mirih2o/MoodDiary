@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInput,
   ScrollView,
+  Image,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Calendar } from "react-native-calendars";
@@ -89,7 +90,7 @@ const Diary = () => {
       quality: 1,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       console.log(result.uri);
     }
   };
@@ -104,6 +105,10 @@ const Diary = () => {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require("../../assets/background.png")}
+        style={styles.image}
+      />
       <TouchableOpacity onPress={toggleModal} style={styles.date}>
         <Text style={{ fontSize: 22 }}>{formatDate(selectedDate)}</Text>
         {/*selectedDate.toDateString() */}
@@ -115,12 +120,7 @@ const Diary = () => {
         />
       </TouchableOpacity>
 
-      <Modal
-        visible={isModalVisible}
-        animationType="fade"
-        transparent={true}
-        style={styles.modal}
-      >
+      <Modal visible={isModalVisible} animationType="fade" transparent={true}>
         {/* <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="date"
@@ -128,8 +128,9 @@ const Diary = () => {
             onCancel={hideDatePicker}
           />
           */}
-        <View>
+        <View style={styles.calendar}>
           <Calendar
+            style={{ height: hp(45) }}
             onDayPress={handleDayPress}
             markedDates={{
               [selectedDate]: {
@@ -142,7 +143,7 @@ const Diary = () => {
               textSectionTitleColor: "#C4C1D6",
               selectedDayBackgroundColor: "#C4C1D6",
               selectedDayTextColor: "black",
-              todayTextColor: "#dbaaee",
+              todayTextColor: "#C4C1D6",
               dayTextColor: "#2d4150",
               textDisabledColor: "#d9e1e8",
               dotColor: "#dbaaee",
@@ -169,7 +170,10 @@ const Diary = () => {
         placeholder="Titel"
         value={title}
         onChangeText={setTitle}
-        style={styles.titleInput}
+        style={[
+          styles.titleInput,
+          { fontSize: selectedTextSize, fontStyle: selectedTextStyle },
+        ]}
       />
       <View
         style={{
@@ -250,6 +254,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#9d99bc",
   },
+  image: {
+    position: "absolute",
+    width: wp(100),
+    height: hp(100),
+    opacity: 0.2,
+  },
 
   date: {
     flexDirection: "row",
@@ -266,7 +276,7 @@ const styles = StyleSheet.create({
 
   titleInput: {
     margin: 15,
-    fontSize: 18,
+    fontSize: 25,
     borderBottomWidth: 1,
     borderBottomColor: "grey",
   },
@@ -278,12 +288,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  modal: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
   toolbar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -292,6 +296,11 @@ const styles = StyleSheet.create({
   },
   toolbarIcon: {
     marginHorizontal: 10,
+    fontSize: 25,
+  },
+  calendar: {
+    margin: 10,
+    paddingTop: 150,
   },
 });
 
