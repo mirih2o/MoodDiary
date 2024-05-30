@@ -57,15 +57,27 @@ export default function Analytic() {
             padding={{ top: 30, bottom: 30 }}
           />
           <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-          <Legend />
-          <Scatter name="moods" data={data2} fill="#8884d8" />
+          <Scatter name="moods" data={data2} fill="#8884d8">
+            {data2.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                // make sure to use the same color for the same mood
+                // name 1 is very sad, name 5 is very happy
+                // order of COLORS is reversed
+                fill={COLORS[5 - entry.name]}
+              />
+            ))}
+          </Scatter>
         </ScatterChart>
 
-        <PieChart width={400} height={400} onMouseEnter={this.onPieEnter}>
-          <Pie dataKey="amount" data={data} cx={200} cy={200} outerRadius={80}>
+        <PieChart width={400} height={300} onMouseEnter={this.onPieEnter}>
+          <Pie dataKey="amount" data={data} cx={200} cy={100} outerRadius={85}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
+                // make sure to use the same color for the same mood
+                // name 1 is very sad, name 5 is very happy
+                // order of COLORS matches the order of the data
                 fill={COLORS[index % COLORS.length]}
               />
             ))}
