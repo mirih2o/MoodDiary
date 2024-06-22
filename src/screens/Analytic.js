@@ -2,7 +2,7 @@ import React from "react";
 import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
-import {
+{/*import {
   PieChart,
   Pie,
   Cell,
@@ -13,7 +13,9 @@ import {
   CartesianGrid,
   XAxis,
   YAxis,
-} from "recharts";
+} from "recharts";*/}
+import { LineChart, PieChart } from "react-native-gifted-charts";
+import {LinearGradient, Stop} from 'react-native-svg';
 
 // test data
 const data = [
@@ -23,7 +25,7 @@ const data = [
   { name: "2 Sad", amount: 1 },
   { name: "1 Very sad", amount: 1 },
 ];
-const COLORS = ["#00D530", "#C5CD10", "#FFDD00", "#EEAA08", "#F02222"];
+const COLORS = ["#288f68", "#94b86d", "#f7db88", "#f08f55", "#d93452"];
 
 const data2 = [
   { name: 3, day: "Mo" },
@@ -43,8 +45,63 @@ export default function Analytic() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <Text>Analytic!</Text>
+
+      <Text>Mood Analytics</Text>
       <ScrollView>
+
+        <LineChart
+          data={data2.map((entry, index) => ({
+            day: entry.day,
+            value: entry.name,
+            color: COLORS[index % COLORS.length],
+          }))}
+          maxValue={5}
+          noOfSections={5}
+          stepValue={1}
+          initialSpacing={10}
+          dataPointsRadius={2.5}
+          showDataPointsForMissingValues={false}
+          hideOrigin
+          height={160}
+          yAxisExtraHeight={10}
+          lineGradient
+          lineGradientStartColor={COLORS[0]}
+          lineGradientEndColor={COLORS[4]} 
+          thickness={4}   
+          lineGradientId="ggrd"
+        lineGradientComponent={() => {
+          return (
+            <LinearGradient id="ggrd" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={COLORS[0]} />
+              <Stop offset="0.25" stopColor={COLORS[1]} />
+              <Stop offset="0.5" stopColor={COLORS[2]} />
+              <Stop offset="0.75" stopColor={COLORS[3]} />
+              <Stop offset="1" stopColor={COLORS[4]} />
+            </LinearGradient>
+          );
+        }}     
+        />
+
+        <PieChart
+          data={data.map((entry, index) => ({
+            name: entry.name,
+            value: entry.amount,
+            color: COLORS[index % COLORS.length],
+          }))}
+
+          showText
+          textColor="black"
+          radius={150}
+          textSize={20}
+          focusOnPress
+          showValuesAsLabels
+          showTextBackground
+          textBackgroundRadius={20}
+          strokeColor="white"
+          strokeWidth={1.5}
+        />
+
+        {/*
         <ScatterChart width={400} height={400} onMouseEnter={this.onPieEnter}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="day" type="category" name="Day" />
@@ -85,8 +142,11 @@ export default function Analytic() {
           <Tooltip />
           <Legend layout="vertical" />
         </PieChart>
+        */}
         <Text style={styles.centered}>Average: {average_rounded}</Text>
       </ScrollView>
+
+
     </View>
   );
 }
