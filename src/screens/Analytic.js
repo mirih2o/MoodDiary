@@ -41,6 +41,48 @@ const total = data2.reduce((sum, item) => sum + item.name, 0);
 const average = total / data2.length;
 const average_rounded = Math.round(average * 10) / 10;
 
+const commonStripStyle = {position: 'absolute', width: '100%', height: 32};
+const renderBackgroundStrips = () => (
+  <>
+    <View
+      style={{
+        ...commonStripStyle,
+        backgroundColor: COLORS[0],
+      }}
+    />
+    <View
+      style={{
+        ...commonStripStyle,
+        top: 32,
+        backgroundColor: COLORS[1],
+      }}
+    />
+    <View
+      style={{
+        ...commonStripStyle,
+        top: 64,
+        backgroundColor: COLORS[2],
+      }}
+    />
+    <View
+      style={{
+        ...commonStripStyle,
+        //height: 60,
+        top: 96,
+        backgroundColor: COLORS[3],
+      }}
+    />
+    <View
+      style={{
+        ...commonStripStyle,
+        height: 32,
+        top: 128,
+        backgroundColor: COLORS[4],
+      }}
+    />
+  </>
+);
+
 export default function Analytic() {
   return (
     <View style={styles.container}>
@@ -48,7 +90,7 @@ export default function Analytic() {
 
       <Text>Mood Analytics</Text>
       <ScrollView>
-
+      {renderBackgroundStrips()}
         <LineChart
           data={data2.map((entry, index) => ({
             day: entry.day,
@@ -58,28 +100,20 @@ export default function Analytic() {
           maxValue={5}
           noOfSections={5}
           stepValue={1}
+          hideRules
           initialSpacing={10}
-          dataPointsRadius={2.5}
+          dataPointsRadius={4}
+          dataPointsColor="black"
+          strokeDashArray={[4, 4]}
           showDataPointsForMissingValues={false}
+          dataPoints
           hideOrigin
           height={160}
-          yAxisExtraHeight={10}
-          lineGradient
-          lineGradientStartColor={COLORS[0]}
-          lineGradientEndColor={COLORS[4]} 
-          thickness={4}   
-          lineGradientId="ggrd"
-        lineGradientComponent={() => {
-          return (
-            <LinearGradient id="ggrd" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={COLORS[0]} />
-              <Stop offset="0.25" stopColor={COLORS[1]} />
-              <Stop offset="0.5" stopColor={COLORS[2]} />
-              <Stop offset="0.75" stopColor={COLORS[3]} />
-              <Stop offset="1" stopColor={COLORS[4]} />
-            </LinearGradient>
-          );
-        }}     
+          yAxisExtraHeight={16}
+          thickness={1}
+          xAxisColor="white"  
+          yAxisColor="white"
+          yAxisThickness={1.5}
         />
 
         <PieChart
