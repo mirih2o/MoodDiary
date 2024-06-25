@@ -116,7 +116,7 @@ const Diary = () => {
           name="caret-down"
           size={20}
           color="black"
-          style={{ marginLeft: 5 }}
+          style={{ marginLeft: 6 }}
         />
       </TouchableOpacity>
 
