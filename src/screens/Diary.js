@@ -9,7 +9,6 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Calendar } from "react-native-calendars";
 import { Ionicons, FontAwesome, Entypo } from "@expo/vector-icons";
 import {
@@ -22,30 +21,41 @@ const Diary = () => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isEmojiModalVisible, setEmojiModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
   const [selectedTextSize, setSelectedTextSize] = useState(18);
   const [selectedTextStyle, setSelectedTextStyle] = useState("normal");
-  // const [selectedDate, setSelectedDate] = useState(new Date());
-  //const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
 
-  /*const handleConfirm = (date) => {
-    setSelectedDate(date);
-    setDatePickerVisibility(false);
-    setModalVisible(false);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-  */
+  const emojis = [
+    { id: 1, emoji: "😄" },
+    { id: 2, emoji: "😢" },
+    { id: 3, emoji: "😡" },
+    { id: 4, emoji: "😎" },
+    { id: 5, emoji: "😐" },
+    { id: 6, emoji: "😂" },
+    { id: 7, emoji: "😍" },
+    { id: 8, emoji: "😔" },
+    { id: 9, emoji: "😴" },
+    { id: 10, emoji: "😇" },
+    { id: 11, emoji: "🥳" },
+    { id: 12, emoji: "🤔" },
+    { id: 13, emoji: "😭" },
+    { id: 14, emoji: "😬" },
+    { id: 15, emoji: "🤢" },
+  ];
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
-    // setDatePickerVisibility(true);
   };
+
+  const toggleEmojiModal = () => {
+    setEmojiModalVisible(!isEmojiModalVisible);
+  };
+
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     setModalVisible(false);
@@ -111,7 +121,6 @@ const Diary = () => {
       />
       <TouchableOpacity onPress={toggleModal} style={styles.date}>
         <Text style={{ fontSize: 22 }}>{formatDate(selectedDate)}</Text>
-        {/*selectedDate.toDateString() */}
         <Ionicons
           name="caret-down"
           size={20}
@@ -121,64 +130,93 @@ const Diary = () => {
       </TouchableOpacity>
 
       <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-        {/* <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            mode="date"
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
-          />
-          */}
-        <View style={styles.calendar}>
-          <Calendar
-            style={{ height: hp(45) }}
-            onDayPress={handleDayPress}
-            markedDates={{
-              [selectedDate]: {
-                selected: true,
-                marked: true,
-                selectedColor: "#C4C1D6",
-              },
-            }}
-            theme={{
-              textSectionTitleColor: "#C4C1D6",
-              selectedDayBackgroundColor: "#C4C1D6",
-              selectedDayTextColor: "black",
-              todayTextColor: "#C4C1D6",
-              dayTextColor: "#2d4150",
-              textDisabledColor: "#d9e1e8",
-              dotColor: "#dbaaee",
-              selectedDotColor: "#C4C1D6",
-              arrowColor: "#C4C1D6",
-              monthTextColor: "black",
-              indicatorColor: "#dbaaee",
-              textDayFontFamily: "monospace",
-              textMonthFontFamily: "monospace",
-              textDayHeaderFontFamily: "monospace",
-              textDayFontWeight: "300",
-              textMonthFontWeight: "bold",
-              textDayHeaderFontWeight: "300",
-              textDayFontSize: 16,
-              textMonthFontSize: 16,
-              textDayHeaderFontSize: 16,
-            }}
-          />
+        <View style={styles.modalContainer}>
+          <View style={styles.calendar}>
+            <Calendar
+              style={{ height: hp(50), width: wp(90) }}
+              onDayPress={handleDayPress}
+              markedDates={{
+                [selectedDate]: {
+                  selected: true,
+                  marked: true,
+                  selectedColor: "#C4C1D6",
+                },
+              }}
+              theme={{
+                textSectionTitleColor: "#C4C1D6",
+                selectedDayBackgroundColor: "#C4C1D6",
+                selectedDayTextColor: "black",
+                todayTextColor: "#C4C1D6",
+                dayTextColor: "#2d4150",
+                textDisabledColor: "#d9e1e8",
+                dotColor: "#dbaaee",
+                selectedDotColor: "#C4C1D6",
+                arrowColor: "#C4C1D6",
+                monthTextColor: "black",
+                indicatorColor: "#dbaaee",
+                textDayFontFamily: "monospace",
+                textMonthFontFamily: "monospace",
+                textDayHeaderFontFamily: "monospace",
+                textDayFontWeight: "300",
+                textMonthFontWeight: "bold",
+                textDayHeaderFontWeight: "300",
+                textDayFontSize: 16,
+                textMonthFontSize: 16,
+                textDayHeaderFontSize: 16,
+              }}
+            />
+          </View>
         </View>
       </Modal>
 
       <View style={styles.line} />
-      <TextInput
-        placeholder="Titel"
-        value={title}
-        onChangeText={setTitle}
-        style={[
-          styles.titleInput,
-          { fontSize: selectedTextSize, fontStyle: selectedTextStyle },
-        ]}
-      />
+      <View style={styles.titleContainer}>
+        <TextInput
+          placeholder="Titel"
+          value={title}
+          onChangeText={setTitle}
+          style={[
+            styles.titleInput,
+            {
+              fontSize: selectedTextSize,
+              fontStyle: selectedTextStyle,
+              flex: 1,
+            },
+          ]}
+        />
+        <TouchableOpacity onPress={toggleEmojiModal} style={styles.emoji}>
+          <Text style={styles.emojiText}>
+            {selectedEmoji
+              ? emojis.find((e) => e.id === selectedEmoji).emoji
+              : "😐"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <Modal
+        visible={isEmojiModalVisible}
+        animationType="fade"
+        transparent={true}
+      >
+        <View style={styles.emojiModalContainer}>
+          <View style={styles.emojiContainer}>
+            {emojis.map((emojiObj) => (
+              <TouchableOpacity
+                key={emojiObj.id}
+                onPress={() => {
+                  setSelectedEmoji(emojiObj.id);
+                  setEmojiModalVisible(false);
+                }}
+              >
+                <Text style={styles.emojiText}>{emojiObj.emoji}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
       <View
         style={{
           height: hp(55),
-          margin: 20,
+          margin: 5,
         }}
       >
         <ScrollView>
@@ -249,6 +287,8 @@ const Diary = () => {
   );
 };
 
+export default Diary;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -260,12 +300,10 @@ const styles = StyleSheet.create({
     height: hp(100),
     opacity: 0.2,
   },
-
   date: {
     flexDirection: "row",
     margin: 25,
   },
-
   line: {
     height: 1,
     backgroundColor: "grey",
@@ -273,12 +311,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 30,
   },
-
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 15,
+    marginBottom: 15,
+  },
   titleInput: {
-    margin: 15,
     fontSize: 25,
     borderBottomWidth: 1,
     borderBottomColor: "grey",
+  },
+  emoji: {
+    marginLeft: 10,
+  },
+  emojiModalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  emojiContainer: {
+    width: wp(80),
+    height: hp(25),
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+  },
+  emojiText: {
+    fontSize: 29,
+    margin: 10,
   },
   textInput: {
     fontSize: 18,
@@ -287,7 +352,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
   },
-
   toolbar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -299,9 +363,12 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   calendar: {
-    margin: 10,
-    paddingTop: 150,
+    paddingTop: 50,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 });
-
-export default Diary;
