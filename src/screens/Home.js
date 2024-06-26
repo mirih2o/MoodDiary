@@ -17,13 +17,46 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Alert } from "react-native";
 import { quotes, motivationStyles } from "../CustomComponent/Quotes";
+import supabase from "../data/supabaseClient";
 
 const Home = ({ navigation }) => {
   const [motivationQuote, setMotivationQuote] = useState("");
+  const [entries, setEntries] = useState([]);
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     setMotivationQuote(quotes[randomIndex]);
+  }, []);
+
+  const fetchEntries = async () => {
+    const { data, error } = await supabase
+      .from("entries")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error(error);
+    } else {
+      setEntries(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchEntries();
+
+    const subscription = supabase
+      .channel("public:entries")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "entries" },
+        (payload) => {
+          setEntries((prevEntries) => [payload.new, ...prevEntries]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const handlePress = () => {
@@ -49,61 +82,28 @@ const Home = ({ navigation }) => {
         <Text style={motivationStyles.motivationText}>{motivationQuote}</Text>
       </View>
 
-      {/*Columns */}
-
-      <View style={styles.columnsContainer}>
-        <ScrollView>
-          <View style={styles.columns}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 35, marginRight: 10 }}>07</Text>
-              <Text style={{ marginTop: 17, fontSize: 18 }}>Mai</Text>
+      <ScrollView style={styles.columnsContainer}>
+        {entries.map((entry) => (
+          <View key={entry.entry_id} style={styles.columns}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 35, marginRight: 10 }}>
+                  {new Date(entry.created_at).getDate()}
+                </Text>
+                <Text style={{ marginTop: 17, fontSize: 18 }}>
+                  {new Date(entry.created_at).toLocaleString("default", {
+                    month: "long",
+                  })}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 35 }}>{entry.mood}</Text>
             </View>
-
-            <Text style={{ padding: 15 }}>Tagebucheintrag...</Text>
+            <Text style={{ padding: 15 }}>{entry.comment}</Text>
           </View>
-
-          <View style={styles.columns}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 35, marginRight: 10 }}>07</Text>
-              <Text style={{ marginTop: 17, fontSize: 18 }}>Mai</Text>
-            </View>
-
-            <Text style={{ padding: 15 }}>Tagebucheintrag...</Text>
-          </View>
-          <View style={styles.columns}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 35, marginRight: 10 }}>07</Text>
-              <Text style={{ marginTop: 17, fontSize: 18 }}>Mai</Text>
-            </View>
-
-            <Text style={{ padding: 15 }}>Tagebucheintrag...</Text>
-          </View>
-          <View style={styles.columns}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 35, marginRight: 10 }}>07</Text>
-              <Text style={{ marginTop: 17, fontSize: 18 }}>Mai</Text>
-            </View>
-
-            <Text style={{ padding: 15 }}>Tagebucheintrag...</Text>
-          </View>
-          <View style={styles.columns}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 35, marginRight: 10 }}>07</Text>
-              <Text style={{ marginTop: 17, fontSize: 18 }}>Mai</Text>
-            </View>
-
-            <Text style={{ padding: 15 }}>Tagebucheintrag...</Text>
-          </View>
-          <View style={styles.columns}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 35, marginRight: 10 }}>07</Text>
-              <Text style={{ marginTop: 17, fontSize: 18 }}>Mai</Text>
-            </View>
-
-            <Text style={{ padding: 15 }}>Tagebucheintrag...</Text>
-          </View>
-        </ScrollView>
-      </View>
+        ))}
+      </ScrollView>
 
       <TouchableOpacity style={styles.addButton} onPress={handlePress}>
         <Ionicons name="add" size={32} color="white" />
@@ -111,6 +111,7 @@ const Home = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
 export default Home;
 
 const styles = StyleSheet.create({

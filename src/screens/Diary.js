@@ -8,6 +8,7 @@ import {
   TextInput,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { Ionicons, FontAwesome, Entypo } from "@expo/vector-icons";
@@ -16,8 +17,10 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import * as ImagePicker from "expo-image-picker";
+import supabase from "../data/supabaseClient";
+import { FontAwesome6 } from "@expo/vector-icons";
 
-const Diary = () => {
+const Diary = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
@@ -113,6 +116,40 @@ const Diary = () => {
     setSelectedTextSize(size);
   };
 
+  const saveEntry = async () => {
+    const now = new Date().toISOString();
+    const dateTimeToSave = selectedDate.includes("T")
+      ? selectedDate
+      : `${selectedDate}T${new Date().toISOString().split("T")[1]}`;
+
+    const { data, error } = await supabase.from("entries").insert([
+      {
+        created_at: dateTimeToSave,
+        comment: text,
+        _photo_id: null,
+        entry_type: "diary",
+        title: title,
+        mood: selectedEmoji
+          ? emojis.find((e) => e.id === selectedEmoji).emoji
+          : "😐",
+      },
+    ]);
+
+    if (error) {
+      Alert.alert("Error", error.message);
+    } else {
+      Alert.alert("Success", "Diary entry saved successfully");
+      setTitle("");
+      setText("");
+      setSelectedEmoji(null);
+    }
+  };
+
+  const handleSavePress = () => {
+    saveEntry();
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -172,7 +209,7 @@ const Diary = () => {
       <View style={styles.line} />
       <View style={styles.titleContainer}>
         <TextInput
-          placeholder="Titel"
+          placeholder="Title"
           value={title}
           onChangeText={setTitle}
           style={[
@@ -233,6 +270,10 @@ const Diary = () => {
           />
         </ScrollView>
       </View>
+
+      <TouchableOpacity onPress={handleSavePress} style={styles.saveButton}>
+        <FontAwesome6 name="add" size={24} color="black" />
+      </TouchableOpacity>
 
       <View style={styles.toolbar}>
         <TouchableOpacity
@@ -370,5 +411,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  saveButton: {
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "white",
+    fontSize: 18,
   },
 });
