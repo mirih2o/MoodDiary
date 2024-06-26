@@ -9,6 +9,8 @@ import {
   ScrollView,
   Image,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { Ionicons, FontAwesome, Entypo } from "@expo/vector-icons";
@@ -117,21 +119,21 @@ const Diary = ({ navigation }) => {
   };
 
   const saveEntry = async () => {
-    const now = new Date().toISOString();
+    const now = new Date().toISOString(); // Aktuelles Datum und Uhrzeit
     const dateTimeToSave = selectedDate.includes("T")
       ? selectedDate
-      : `${selectedDate}T${new Date().toISOString().split("T")[1]}`;
+      : `${selectedDate}T${new Date().toISOString().split("T")[1]}`; // Verbindet das ausgewählte Datum mit der aktuellen Uhrzeit
 
     const { data, error } = await supabase.from("entries").insert([
       {
-        created_at: dateTimeToSave,
+        created_at: dateTimeToSave, // Setzt das Datum und die Uhrzeit
         comment: text,
         _photo_id: null,
         entry_type: "diary",
         title: title,
         mood: selectedEmoji
           ? emojis.find((e) => e.id === selectedEmoji).emoji
-          : "😐",
+          : "😐", // Standard-Emoji wenn keiner ausgewählt wurde
       },
     ]);
 
@@ -142,6 +144,7 @@ const Diary = ({ navigation }) => {
       setTitle("");
       setText("");
       setSelectedEmoji(null);
+      navigation.navigate("Home");
     }
   };
 
@@ -151,7 +154,11 @@ const Diary = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Optional für zusätzliche Anpassung
+    >
       <Image
         source={require("../../assets/background.png")}
         style={styles.image}
@@ -250,13 +257,13 @@ const Diary = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-      <View
-        style={{
-          height: hp(55),
-          margin: 5,
-        }}
-      >
-        <ScrollView>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View
+          style={{
+            flex: 1,
+            margin: 5,
+          }}
+        >
           <TextInput
             placeholder="Write your dream here..."
             value={text}
@@ -268,8 +275,8 @@ const Diary = ({ navigation }) => {
             multiline={true}
             textAlignVertical="top"
           />
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
 
       <TouchableOpacity onPress={handleSavePress} style={styles.saveButton}>
         <FontAwesome6 name="add" size={24} color="black" />
@@ -324,7 +331,7 @@ const Diary = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -392,6 +399,7 @@ const styles = StyleSheet.create({
     borderColor: "grey",
     borderRadius: 5,
     padding: 10,
+    flex: 1,
   },
   toolbar: {
     flexDirection: "row",
