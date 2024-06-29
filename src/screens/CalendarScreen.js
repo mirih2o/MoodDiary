@@ -51,6 +51,8 @@ const CalendarScreen = ({ navigation }) => {
         (entry) => entry.created_at.split("T")[0] === selectedDate
       );
       setFilteredEntries(filtered);
+    } else {
+      setFilteredEntries([]); // Reset filtered entries when no date is selected
     }
   }, [selectedDate, entries]);
 
@@ -99,21 +101,23 @@ const CalendarScreen = ({ navigation }) => {
               />
             </View>
 
-            <View style={styles.entriesContainer}>
-              <Text style={styles.selectedDateText}>Datum: {selectedDate}</Text>
-              {filteredEntries.length === 0 ? (
-                <Text style={styles.noEntriesText}>Keine Einträge</Text>
-              ) : (
-                filteredEntries.map((entry) => (
-                  <TouchableOpacity key={entry.id} onPress={() => handleEntryPress(entry)} style={styles.entry}>
-                    <Text style={styles.entryText}>Stimmung: {entry.mood}</Text>
-                    <Text numberOfLines={2} style={styles.entryText}>
-                      {truncateText(entry.comment, 2)}
-                    </Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </View>
+            {selectedDate ? (
+              <View style={styles.entriesContainer}>
+                <Text style={styles.selectedDateText}>Datum: {selectedDate}</Text>
+                {filteredEntries.length === 0 ? (
+                  <Text style={styles.noEntriesText}>Keine Einträge</Text>
+                ) : (
+                  filteredEntries.map((entry) => (
+                    <TouchableOpacity key={entry.id} onPress={() => handleEntryPress(entry)} style={styles.entry}>
+                      <Text style={styles.entryText}>Stimmung: {entry.mood}</Text>
+                      <Text numberOfLines={2} style={styles.entryText}>
+                        {truncateText(entry.comment, 2)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </View>
+            ) : null}
           </View>
 
           {selectedEntry && (
