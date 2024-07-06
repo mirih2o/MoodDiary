@@ -13,7 +13,7 @@ import {
   Platform,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { Ionicons, FontAwesome, Entypo } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -21,37 +21,22 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import supabase from "../data/supabaseClient";
 import { FontAwesome6 } from "@expo/vector-icons";
+import Toolbar from "../CustomComponent/Toolbar";
+import EmojiModal from "../CustomComponent/EmojiModal";
+import eventEmitter from "../data/EventEmitter";
 
-const Diary = ({ navigation }) => {
-  const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
+const Diary = ({ route, navigation }) => {
+  const { entry } = route.params || {};
+  const [title, setTitle] = useState(entry?.title || "");
+  const [text, setText] = useState(entry?.comment || "");
   const [isModalVisible, setModalVisible] = useState(false);
   const [isEmojiModalVisible, setEmojiModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
+    entry?.created_at || new Date().toISOString().split("T")[0]
   );
-
   const [selectedTextSize, setSelectedTextSize] = useState(18);
   const [selectedTextStyle, setSelectedTextStyle] = useState("normal");
-  const [selectedEmoji, setSelectedEmoji] = useState(null);
-
-  const emojis = [
-    { id: 1, emoji: "😄" },
-    { id: 2, emoji: "😢" },
-    { id: 3, emoji: "😡" },
-    { id: 4, emoji: "😎" },
-    { id: 5, emoji: "😐" },
-    { id: 6, emoji: "😂" },
-    { id: 7, emoji: "😍" },
-    { id: 8, emoji: "😔" },
-    { id: 9, emoji: "😴" },
-    { id: 10, emoji: "😇" },
-    { id: 11, emoji: "🥳" },
-    { id: 12, emoji: "🤔" },
-    { id: 13, emoji: "😭" },
-    { id: 14, emoji: "😬" },
-    { id: 15, emoji: "🤢" },
-  ];
+  const [selectedEmoji, setSelectedEmoji] = useState(entry?.mood || "😐"); // Emoji aus dem Eintrag laden
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -119,23 +104,28 @@ const Diary = ({ navigation }) => {
   };
 
   const saveEntry = async () => {
-    const now = new Date().toISOString(); // Aktuelles Datum und Uhrzeit
-    const dateTimeToSave = selectedDate.includes("T")
-      ? selectedDate
-      : `${selectedDate}T${new Date().toISOString().split("T")[1]}`; // Verbindet das ausgewählte Datum mit der aktuellen Uhrzeit
+    const newEntry = {
+      created_at: selectedDate,
+      comment: text,
+      _photo_id: null,
+      entry_type: "diary",
+      title: title,
+      mood: selectedEmoji, // Emoji selbst speichern
+    };
 
-    const { data, error } = await supabase.from("entries").insert([
-      {
-        created_at: dateTimeToSave, // Setzt das Datum und die Uhrzeit
-        comment: text,
-        _photo_id: null,
-        entry_type: "diary",
-        title: title,
-        mood: selectedEmoji
-          ? emojis.find((e) => e.id === selectedEmoji).emoji
-          : "😐", // Standard-Emoji wenn keiner ausgewählt wurde
-      },
-    ]);
+    let data, error;
+
+    if (entry && entry._entry_id) {
+      // Update existing entry
+      ({ data, error } = await supabase
+        .from("entries")
+        .update(newEntry)
+        .eq("_entry_id", entry._entry_id));
+    } else {
+      // Insert new entry
+      newEntry.created_at = new Date().toISOString();
+      ({ data, error } = await supabase.from("entries").insert([newEntry]));
+    }
 
     if (error) {
       Alert.alert("Error", error.message);
@@ -143,7 +133,8 @@ const Diary = ({ navigation }) => {
       Alert.alert("Success", "Diary entry saved successfully");
       setTitle("");
       setText("");
-      setSelectedEmoji(null);
+      setSelectedEmoji("😐");
+      eventEmitter.emit("entrySaved");
       navigation.navigate("Home");
     }
   };
@@ -155,182 +146,123 @@ const Diary = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Optional für zusätzliche Anpassung
+      behavior={Platform.OS === "ios" ? "padding" : null}
+      style={{ flex: 1 }}
     >
-      <Image
-        source={require("../../assets/background.png")}
-        style={styles.image}
-      />
-      <TouchableOpacity onPress={toggleModal} style={styles.date}>
-        <Text style={{ fontSize: 22 }}>{formatDate(selectedDate)}</Text>
-        <Ionicons
-          name="caret-down"
-          size={20}
-          color="black"
-          style={{ marginLeft: 6 }}
-        />
-      </TouchableOpacity>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Image
+            source={require("../../assets/background.png")}
+            style={styles.image}
+          />
+          <TouchableOpacity onPress={toggleModal} style={styles.date}>
+            <Text style={{ fontSize: 22 }}>{formatDate(selectedDate)}</Text>
+            <Ionicons
+              name="caret-down"
+              size={20}
+              color="black"
+              style={{ marginLeft: 6 }}
+            />
+          </TouchableOpacity>
 
-      <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.calendar}>
-            <Calendar
-              style={{ height: hp(50), width: wp(90) }}
-              onDayPress={handleDayPress}
-              markedDates={{
-                [selectedDate]: {
-                  selected: true,
-                  marked: true,
-                  selectedColor: "#C4C1D6",
+          <Modal
+            visible={isModalVisible}
+            animationType="fade"
+            transparent={true}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.calendar}>
+                <Calendar
+                  style={{ height: hp(50), width: wp(90) }}
+                  onDayPress={handleDayPress}
+                  markedDates={{
+                    [selectedDate]: {
+                      selected: true,
+                      marked: true,
+                      selectedColor: "#C4C1D6",
+                    },
+                  }}
+                  theme={{
+                    textSectionTitleColor: "#C4C1D6",
+                    selectedDayBackgroundColor: "#C4C1D6",
+                    selectedDayTextColor: "black",
+                    todayTextColor: "#C4C1D6",
+                    dayTextColor: "#2d4150",
+                    textDisabledColor: "#d9e1e8",
+                    dotColor: "#dbaaee",
+                    selectedDotColor: "#C4C1D6",
+                    arrowColor: "#C4C1D6",
+                    monthTextColor: "black",
+                    indicatorColor: "#dbaaee",
+                    textDayFontFamily: "monospace",
+                    textMonthFontFamily: "monospace",
+                    textDayHeaderFontFamily: "monospace",
+                    textDayFontWeight: "300",
+                    textMonthFontWeight: "bold",
+                    textDayHeaderFontWeight: "300",
+                    textDayFontSize: 16,
+                    textMonthFontSize: 16,
+                    textDayHeaderFontSize: 16,
+                  }}
+                />
+              </View>
+            </View>
+          </Modal>
+
+          <View style={styles.line} />
+          <View style={styles.titleContainer}>
+            <TextInput
+              placeholder="Title"
+              value={title}
+              onChangeText={setTitle}
+              style={[
+                styles.titleInput,
+                {
+                  fontSize: selectedTextSize,
+                  fontStyle: selectedTextStyle,
+                  flex: 1,
                 },
-              }}
-              theme={{
-                textSectionTitleColor: "#C4C1D6",
-                selectedDayBackgroundColor: "#C4C1D6",
-                selectedDayTextColor: "black",
-                todayTextColor: "#C4C1D6",
-                dayTextColor: "#2d4150",
-                textDisabledColor: "#d9e1e8",
-                dotColor: "#dbaaee",
-                selectedDotColor: "#C4C1D6",
-                arrowColor: "#C4C1D6",
-                monthTextColor: "black",
-                indicatorColor: "#dbaaee",
-                textDayFontFamily: "monospace",
-                textMonthFontFamily: "monospace",
-                textDayHeaderFontFamily: "monospace",
-                textDayFontWeight: "300",
-                textMonthFontWeight: "bold",
-                textDayHeaderFontWeight: "300",
-                textDayFontSize: 16,
-                textMonthFontSize: 16,
-                textDayHeaderFontSize: 16,
-              }}
+              ]}
+            />
+            <TouchableOpacity onPress={toggleEmojiModal} style={styles.emoji}>
+              <Text style={styles.emojiText}>
+                {selectedEmoji ? selectedEmoji : "😐"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <EmojiModal
+            isEmojiModalVisible={isEmojiModalVisible}
+            toggleEmojiModal={toggleEmojiModal}
+            setSelectedEmoji={setSelectedEmoji}
+          />
+          <View style={{ height: hp(55), margin: 5 }}>
+            <TextInput
+              placeholder="Write your dream here..."
+              value={text}
+              onChangeText={setText}
+              style={[
+                styles.textInput,
+                { fontSize: selectedTextSize, fontStyle: selectedTextStyle },
+              ]}
+              multiline={true}
+              textAlignVertical="top"
             />
           </View>
-        </View>
-      </Modal>
 
-      <View style={styles.line} />
-      <View style={styles.titleContainer}>
-        <TextInput
-          placeholder="Title"
-          value={title}
-          onChangeText={setTitle}
-          style={[
-            styles.titleInput,
-            {
-              fontSize: selectedTextSize,
-              fontStyle: selectedTextStyle,
-              flex: 1,
-            },
-          ]}
-        />
-        <TouchableOpacity onPress={toggleEmojiModal} style={styles.emoji}>
-          <Text style={styles.emojiText}>
-            {selectedEmoji
-              ? emojis.find((e) => e.id === selectedEmoji).emoji
-              : "😐"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <Modal
-        visible={isEmojiModalVisible}
-        animationType="fade"
-        transparent={true}
-      >
-        <View style={styles.emojiModalContainer}>
-          <View style={styles.emojiContainer}>
-            {emojis.map((emojiObj) => (
-              <TouchableOpacity
-                key={emojiObj.id}
-                onPress={() => {
-                  setSelectedEmoji(emojiObj.id);
-                  setEmojiModalVisible(false);
-                }}
-              >
-                <Text style={styles.emojiText}>{emojiObj.emoji}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Modal>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View
-          style={{
-            flex: 1,
-            margin: 5,
-          }}
-        >
-          <TextInput
-            placeholder="Write your dream here..."
-            value={text}
-            onChangeText={setText}
-            style={[
-              styles.textInput,
-              { fontSize: selectedTextSize, fontStyle: selectedTextStyle },
-            ]}
-            multiline={true}
-            textAlignVertical="top"
+          <TouchableOpacity onPress={handleSavePress} style={styles.saveButton}>
+            <FontAwesome6 name="add" size={24} color="black" />
+          </TouchableOpacity>
+
+          <Toolbar
+            changeTextSize={changeTextSize}
+            toggleTextStyle={toggleTextStyle}
+            pickImage={pickImage}
+            takePhoto={takePhoto}
+            selectedTextSize={selectedTextSize}
+            selectedTextStyle={selectedTextStyle}
           />
         </View>
       </ScrollView>
-
-      <TouchableOpacity onPress={handleSavePress} style={styles.saveButton}>
-        <FontAwesome6 name="add" size={24} color="black" />
-      </TouchableOpacity>
-
-      <View style={styles.toolbar}>
-        <TouchableOpacity
-          onPress={() => changeTextSize(selectedTextSize === 18 ? 22 : 18)}
-        >
-          <Text style={styles.toolbarIcon}>A</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            toggleTextStyle(
-              selectedTextStyle === "normal" ? "italic" : "normal"
-            )
-          }
-        >
-          <FontAwesome
-            name="italic"
-            size={24}
-            color="black"
-            style={styles.toolbarIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            toggleTextStyle(selectedTextStyle === "normal" ? "bold" : "normal")
-          }
-        >
-          <FontAwesome
-            name="bold"
-            size={24}
-            color="black"
-            style={styles.toolbarIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={pickImage}>
-          <Entypo
-            name="image"
-            size={24}
-            color="black"
-            style={styles.toolbarIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={takePhoto}>
-          <Ionicons
-            name="camera"
-            size={24}
-            color="black"
-            style={styles.toolbarIcon}
-          />
-        </TouchableOpacity>
-      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -399,17 +331,6 @@ const styles = StyleSheet.create({
     borderColor: "grey",
     borderRadius: 5,
     padding: 10,
-    flex: 1,
-  },
-  toolbar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#C4C1D6",
-    padding: 10,
-  },
-  toolbarIcon: {
-    marginHorizontal: 10,
-    fontSize: 25,
   },
   calendar: {
     paddingTop: 50,
@@ -421,7 +342,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   saveButton: {
+    position: "absolute",
+    bottom: "15%",
+    left: "80%",
+    backgroundColor: "#5E5B70",
+    borderRadius: 50,
+    height: 60,
+    width: 60,
     alignItems: "center",
+    justifyContent: "center",
   },
   saveButtonText: {
     color: "white",

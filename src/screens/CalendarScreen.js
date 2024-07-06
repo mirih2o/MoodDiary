@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, ImageBackground } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  ImageBackground,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 import { heightPercentageToDP } from "react-native-responsive-screen";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -58,7 +66,12 @@ const CalendarScreen = ({ navigation }) => {
 
   const onDayPress = (day) => {
     setSelectedDate(day.dateString);
-    const selectedDay = { [day.dateString]: { selected: true, selectedColor: calendarSelectedColor } };
+    const selectedDay = {
+      [day.dateString]: {
+        selected: true,
+        selectedColor: calendarSelectedColor,
+      },
+    };
     setMarkedDates(selectedDay);
   };
 
@@ -68,10 +81,10 @@ const CalendarScreen = ({ navigation }) => {
   };
 
   const truncateText = (text, maxLines) => {
-    const words = text.split(' ');
-    let truncatedText = words.slice(0, maxLines * 10).join(' ');
+    const words = text.split(" ");
+    let truncatedText = words.slice(0, maxLines * 10).join(" ");
     if (truncatedText.length < text.length) {
-      truncatedText += '...';
+      truncatedText += "...";
     }
     return truncatedText;
   };
@@ -103,13 +116,21 @@ const CalendarScreen = ({ navigation }) => {
 
             {selectedDate ? (
               <View style={styles.entriesContainer}>
-                <Text style={styles.selectedDateText}>Datum: {selectedDate}</Text>
+                <Text style={styles.selectedDateText}>
+                  Datum: {selectedDate}
+                </Text>
                 {filteredEntries.length === 0 ? (
                   <Text style={styles.noEntriesText}>Keine Einträge</Text>
                 ) : (
                   filteredEntries.map((entry) => (
-                    <TouchableOpacity key={entry.id} onPress={() => handleEntryPress(entry)} style={styles.entry}>
-                      <Text style={styles.entryText}>Stimmung: {entry.mood}</Text>
+                    <TouchableOpacity
+                      key={entry.id}
+                      onPress={() => handleEntryPress(entry)}
+                      style={styles.entry}
+                    >
+                      <Text style={styles.entryText}>
+                        Stimmung: {entry.mood}
+                      </Text>
                       <Text numberOfLines={2} style={styles.entryText}>
                         {truncateText(entry.comment, 2)}
                       </Text>
@@ -128,12 +149,23 @@ const CalendarScreen = ({ navigation }) => {
               onRequestClose={() => setModalVisible(false)}
             >
               <View style={styles.modalView}>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                  <Ionicons name="close-circle-outline" size={36} color="#5E5B70" />
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={36}
+                    color="#5E5B70"
+                  />
                 </TouchableOpacity>
                 <ScrollView contentContainerStyle={styles.modalContent}>
-                  <Text style={styles.modalText}>Stimmung: {selectedEntry.mood}</Text>
-                  <Text style={styles.modalText}>Kommentare: {selectedEntry.comment}</Text>
+                  <Text style={styles.modalText}>
+                    Mood: {selectedEntry.mood}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Comment: {selectedEntry.comment}
+                  </Text>
                 </ScrollView>
               </View>
             </Modal>
@@ -170,7 +202,7 @@ const calendarTheme = {
   textDayHeaderFontWeight: "300",
   textDayFontSize: 16,
   textMonthFontSize: 16,
-  textDayHeaderFontSize: 16
+  textDayHeaderFontSize: 16,
 };
 
 const styles = StyleSheet.create({
