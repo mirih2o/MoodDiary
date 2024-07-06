@@ -128,9 +128,7 @@ const CalendarScreen = ({ navigation }) => {
                       onPress={() => handleEntryPress(entry)}
                       style={styles.entry}
                     >
-                      <Text style={styles.entryText}>
-                        Stimmung: {entry.mood}
-                      </Text>
+                      <Text style={styles.entryMood}> {entry.mood}</Text>
                       <Text numberOfLines={2} style={styles.entryText}>
                         {truncateText(entry.comment, 2)}
                       </Text>
@@ -160,12 +158,9 @@ const CalendarScreen = ({ navigation }) => {
                   />
                 </TouchableOpacity>
                 <ScrollView contentContainerStyle={styles.modalContent}>
-                  <Text style={styles.modalText}>
-                    Mood: {selectedEntry.mood}
-                  </Text>
-                  <Text style={styles.modalText}>
-                    Comment: {selectedEntry.comment}
-                  </Text>
+                  <Text style={styles.modalMood}>{selectedEntry.mood}</Text>
+
+                  <Text style={styles.modalText}>{selectedEntry.comment}</Text>
                 </ScrollView>
               </View>
             </Modal>
@@ -313,14 +308,22 @@ const styles = StyleSheet.create({
   entryText: {
     fontSize: 16,
     color: "#2d4150",
-    marginBottom: 5,
   },
+
+  entryMood: {
+    fontSize: 22,
+    color: "#2d4150",
+    justifyContent: "center",
+    alignSelf: "flex-end",
+  },
+
   modalView: {
     margin: 20,
     backgroundColor: "#ffffff",
     borderRadius: 20,
     padding: 20,
-    alignItems: "center",
+    height: "90%",
+    //alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -332,15 +335,22 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    // alignItems: "center",
+    // justifyContent: "center",
     paddingBottom: 100,
   },
   modalText: {
-    marginBottom: 10,
-    fontSize: 18,
+    marginVertical: 20,
+    marginHorizontal: 10,
+    fontSize: 17,
     color: "#2d4150",
   },
+
+  modalMood: {
+    fontSize: 50,
+    margin: 10,
+  },
+
   closeButton: {
     position: "absolute",
     top: 10,
