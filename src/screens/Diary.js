@@ -237,7 +237,7 @@ const Diary = ({ route, navigation }) => {
           />
           <View style={{ height: hp(55), margin: 5 }}>
             <TextInput
-              placeholder="Write your dream here..."
+              placeholder="Write your diary here..."
               value={text}
               onChangeText={setText}
               style={[

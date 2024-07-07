@@ -1,13 +1,62 @@
 # MoodDiary
 
-Falls ihr Fehlermeldungen bekommt, installiert diese expo Packages!
+## Beschreibung
 
-npm install @react-navigation/native @react-navigation/native-stack
-npm install react-native-screens react-native-safe-area-context
-npm install @react-navigation/material-bottom-tabs react-native-paper react-native-vector-icons
-npm install @react-navigation/stack
-npx expo install react-native-gesture-handler
-npx expo install @react-native-masked-view/masked-view
+MoodDiary ist eine React Native Anwendung, die es Benutzern ermöglicht, Tagebuch- und Traum-Einträge zu erstellen und ihre Stimmungen zu verfolgen. Die Anwendung verwendet Expo für die einfache Entwicklung und Bereitstellung.
 
-// wenn ihr euch die App in Web Browser anschauen wollt
-npx expo install react-native-web react-dom @expo/metro-runtime
+## Systemanforderungen
+
+Um MoodDiary auszuführen, müssen die folgenden Systemanforderungen erfüllen sein:
+
+- Node.js (Version 14 oder höher)
+- npm (Version 6 oder höher) oder yarn (Version 1.22 oder höher)
+- Git (Version 2.20 oder höher)
+
+## Software-Abhängigkeiten
+
+Die folgenden Software-Abhängigkeiten werden in diesem Projekt verwendet:
+
+- Expo SDK
+- React Native
+- Jest (für Tests)
+- React Test Renderer (für Tests)
+- React Navigation
+- Expo-CLI
+
+## Schritte zum Aufsetzen und Starten der App
+
+### 1. Repository klonen
+
+git clone https://github.com/mirih2o/MoodDiary
+
+### 2. Expo CLI installieren
+
+```bash
+
+npm install -g expo-cli
+
+```
+
+## 3. Abhängigkeiten installieren
+
+```bash
+
+npm install
+
+```
+
+## 4. Starten der App
+
+```bash
+
+expo start
+
+```
+
+## 5. Ausführen der Tests
+
+```bash
+
+npm test
+
+```
