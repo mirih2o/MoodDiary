@@ -208,6 +208,23 @@ const Analytic = ({ navigation }) => {
           </View>
 
           <View style={styles.pieContainer}>
+            <Text style={styles.pieTitle}>Mood Distribution by Emoji</Text>
+            <PieChart
+              data={pieDataByEmoji}
+              showText
+              textColor="black"
+              radius={150}
+              textSize={16}
+              showValuesAsLabels
+              showTextBackground
+              textBackgroundRadius={20}
+              strokeColor="white"
+              strokeWidth={1.5}
+              labelsPosition='outward'
+            />
+          </View>
+
+          <View style={styles.pieContainer}>
             <Text style={styles.pieTitle}>Mood Distribution by Value</Text>
             <PieChart
               data={pieDataByValue}
@@ -240,22 +257,7 @@ const Analytic = ({ navigation }) => {
             </View>
           </View>
 
-          <View style={styles.pieContainer}>
-            <Text style={styles.pieTitle}>Mood Distribution by Emoji</Text>
-            <PieChart
-              data={pieDataByEmoji}
-              showText
-              textColor="black"
-              radius={150}
-              textSize={16}
-              showValuesAsLabels
-              showTextBackground
-              textBackgroundRadius={20}
-              strokeColor="white"
-              strokeWidth={1.5}
-              labelsPosition='outward'
-            />
-          </View>
+
 
         </ScrollView>
       </ImageBackground>
