@@ -7,17 +7,18 @@ import { heightPercentageToDP } from "react-native-responsive-screen";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import supabase from '../data/supabaseClient';
 
-const COLORS = ["#288f68", "#94b86d", "#f7db88", "#f08f55", "#d93452"];
+// mood values: 1 - 5
+const COLORS = ["#d93452", "#f08f55", "#f7db88", "#94b86d", "#288f68"];
 
 const commonStripStyle = { position: 'absolute', width: '100%', height: 32 };
 
 const renderBackgroundStrips = () => (
   <>
-    <View style={{ ...commonStripStyle, backgroundColor: COLORS[0] }} />
-    <View style={{ ...commonStripStyle, top: 32, backgroundColor: COLORS[1] }} />
+    <View style={{ ...commonStripStyle, backgroundColor: COLORS[4] }} />
+    <View style={{ ...commonStripStyle, top: 32, backgroundColor: COLORS[3] }} />
     <View style={{ ...commonStripStyle, top: 64, backgroundColor: COLORS[2] }} />
-    <View style={{ ...commonStripStyle, top: 96, backgroundColor: COLORS[3] }} />
-    <View style={{ ...commonStripStyle, height: 32, top: 128, backgroundColor: COLORS[4] }} />
+    <View style={{ ...commonStripStyle, top: 96, backgroundColor: COLORS[1] }} />
+    <View style={{ ...commonStripStyle, height: 32, top: 128, backgroundColor: COLORS[0] }} />
   </>
 );
 
@@ -121,7 +122,7 @@ const Analytic = ({ navigation }) => {
     return { day: new Date(day).toLocaleDateString('de-DE', { weekday: 'short' }), value: averageMood };
   });
 
-  const pieData = entries.reduce((acc, { mood }) => {
+  const pieDataByValue = entries.reduce((acc, { mood }) => {
     const moodValue = emojiToValue(mood);
     const moodItem = acc.find(item => item.name === moodValue);
     if (moodItem) {
@@ -130,12 +131,31 @@ const Analytic = ({ navigation }) => {
       acc.push({ name: moodValue, amount: 1 });
     }
     return acc;
-  }, []);
+  }, []).map((entry, index) => ({
+    ...entry,
+    color: COLORS[entry.name - 1],
+    value: entry.amount,
+    text: `${entry.amount}x`
+  }));
+
+  const pieDataByEmoji = emojis.map((emojiObj) => {
+    const amount = entries.filter(entry => entry.mood === emojiObj.emoji).length;
+    return {
+      name: emojiObj.emoji,
+      value: amount,
+      text: `${emojiObj.emoji + amount}x`,
+      color: COLORS[emojiToValue(emojiObj.emoji) - 1],
+    };
+  });
 
   const total = weeklyData.reduce((sum, { value }) => sum + (value !== null ? +value : 0), 0);
   const validDaysCount = weeklyData.filter(({ value }) => value !== null).length;
   const average = validDaysCount > 0 ? total / validDaysCount : 0;
   const average_rounded = Math.round(average * 10) / 10;
+
+  console.log(entries);
+  console.log(pieDataByEmoji);
+  console.log(pieDataByValue);
 
   return (
     <View style={styles.container}>
@@ -158,7 +178,7 @@ const Analytic = ({ navigation }) => {
           <View style={styles.chartsContainer}>
             {renderBackgroundStrips()}
             <LineChart
-              data={weeklyData.map((entry, index) => ({
+              data={weeklyData.map((entry) => ({
                 label: entry.day,
                 value: entry.value !== null ? parseFloat(entry.value) : 0,
               }))}
@@ -183,26 +203,28 @@ const Analytic = ({ navigation }) => {
             />
           </View>
 
-          <PieChart
-            data={pieData.map((entry, index) => ({
-              name: entry.name.toString(),
-              value: entry.amount,
-              text: entry.amount.toString() + 'x',
-              color: COLORS[index % COLORS.length],
-            }))}
-            showText
-            textColor="black"
-            radius={150}
-            textSize={16}
-            focusOnPress
-            showValuesAsLabels
-            showTextBackground
-            textBackgroundRadius={20}
-            strokeColor="white"
-            strokeWidth={1.5}
-          />
-          <View style={styles.chartsContainer}>
+          <View style={styles.statsContainer}>
+            <Text style={styles.centered}>Daily Average: {average_rounded}</Text>
+          </View>
 
+          <View style={styles.pieContainer}>
+            <Text style={styles.pieTitle}>Mood Distribution by Value</Text>
+            <PieChart
+              data={pieDataByValue}
+              showText
+              textColor="black"
+              radius={150}
+              textSize={16}
+              showValuesAsLabels
+              showTextBackground
+              textBackgroundRadius={20}
+              strokeColor="white"
+              strokeWidth={1.5}
+              labelsPosition='outward'
+            />
+          </View>
+
+          <View style={styles.chartsContainer}>
             <View
               style={{
                 width: '100%',
@@ -210,17 +232,31 @@ const Analytic = ({ navigation }) => {
                 justifyContent: 'space-evenly',
                 marginTop: 20,
               }}>
-              {renderLegend('5', COLORS[0])}
-              {renderLegend('4', COLORS[1])}
+              {renderLegend('5', COLORS[4])}
+              {renderLegend('4', COLORS[3])}
               {renderLegend('3', COLORS[2])}
-              {renderLegend('2', COLORS[3])}
-              {renderLegend('1', COLORS[4])}
+              {renderLegend('2', COLORS[1])}
+              {renderLegend('1', COLORS[0])}
             </View>
           </View>
 
-          <View style={styles.statsContainer}>
-            <Text style={styles.centered}>Daily Average: {average_rounded}</Text>
+          <View style={styles.pieContainer}>
+            <Text style={styles.pieTitle}>Mood Distribution by Emoji</Text>
+            <PieChart
+              data={pieDataByEmoji}
+              showText
+              textColor="black"
+              radius={150}
+              textSize={16}
+              showValuesAsLabels
+              showTextBackground
+              textBackgroundRadius={20}
+              strokeColor="white"
+              strokeWidth={1.5}
+              labelsPosition='outward'
+            />
           </View>
+
         </ScrollView>
       </ImageBackground>
     </View>
@@ -282,6 +318,19 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 10,
     paddingBottom: 10,
+  },
+  pieContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 20,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  pieTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   statsContainer: {
     backgroundColor: "white",
